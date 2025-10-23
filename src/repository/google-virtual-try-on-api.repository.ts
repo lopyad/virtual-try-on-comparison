@@ -1,0 +1,65 @@
+import axios from 'axios';
+import { ApiResponse, VirtualTryOnInstance, VirtualTryOnParameters } from '../types/google-api.types';
+import { ApiError } from '../types/errors/error';
+
+const PROJECT_ID = process.env.GOOGLE_PROJECT_ID;
+const ACCESS_TOKEN = process.env.GOOGLE_ACCESS_TOKEN;
+const LOCATION = 'us-central1';
+if (!PROJECT_ID || !ACCESS_TOKEN) {
+  throw new Error('Missing required environment variables: GOOGLE_PROJECT_ID and GOOGLE_ACCESS_TOKEN');
+}
+
+const API_ENDPOINT = `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/${LOCATION}/publishers/google/models/virtual-try-on-preview-08-04:predict`;
+
+export default class GoogleApi {
+  async predict(encodedUserImage: string, encodedProductImage: string): Promise<ApiResponse> {
+    console.log('Sending prediction request to Virtual Try-on API...');
+
+    const instances: VirtualTryOnInstance[] = [
+      {
+        personImage: {
+          image: {
+            bytesBase64Encoded: encodedUserImage
+          }
+        },
+        productImages: [
+          {
+            image: {
+              bytesBase64Encoded: encodedProductImage
+            }
+          }
+        ]
+      }
+    ];
+
+    const parameters: VirtualTryOnParameters = {
+      baseSteps: 30,
+      sampleCount: 1,
+      personGeneration: "allow_all"
+    };
+
+    const requestBody = { instances, parameters };
+
+    try {
+      const response = await axios.post<ApiResponse>(API_ENDPOINT, requestBody, {
+        headers: {
+          'Authorization': `Bearer ${ACCESS_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('Successfully received prediction response.');
+      return response.data;
+    } 
+    catch (error) {
+      console.error('Error calling Virtual Try-on API:', error)
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status || 500;
+        const message = error.response?.data?.error?.message || 'Failed to get virtual try-on prediction.';
+        throw new ApiError(message, status);
+      }
+
+      throw new Error('An unexpected error occurred during the API call.');
+    }
+  }
+}
