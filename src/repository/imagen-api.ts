@@ -1,100 +1,103 @@
-import { 
-    FunctionDeclarationSchemaType,
-    GenerateContentRequest,
-    GenerativeModel,
-    GenerativeModelPreview,
-    HarmBlockThreshold,
-    HarmCategory,
-    VertexAI
- } from '@google-cloud/vertexai';
+import {
+  FunctionDeclarationSchemaType,
+  GenerateContentRequest,
+  GenerativeModel,
+  GenerativeModelPreview,
+  HarmBlockThreshold,
+  HarmCategory,
+  VertexAI
+} from '@google-cloud/vertexai';
 
-const project = 'virtual-try-on-472219';
+const project = process.env.GOOGLE_PROJECT_ID;
 const location = 'us-central1';
-const textModel =  'gemini-2.5-flash';
+const textModel = 'gemini-2.5-flash';
 const visionModel = 'gemini-2.5-flash';
 
-export default class VertextAiApi{
-    private vertexAI: VertexAI;
-    private generativeModel: GenerativeModel;
-    private generativeVisionModel: GenerativeModel;
-    private generativeModelPreview: GenerativeModelPreview;
-    constructor(){
-        this.vertexAI = new VertexAI({
-            project: project,
-            location: location,
-        });
-        // Instantiate Gemini models
-        this.generativeModel = this.vertexAI.getGenerativeModel({
-            model: textModel,
-            // The following parameters are optional
-            // They can also be passed to individual content generation requests
-            safetySettings: [{category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE}],
-            generationConfig: {maxOutputTokens: 256},
-            systemInstruction: {
-            role: 'system',
-            parts: [{"text": `For example, you are a helpful customer service agent.`}]
-            },
-        });
+export default class VertextAiApi {
+  private vertexAI: VertexAI;
+  private generativeModel: GenerativeModel;
+  private generativeVisionModel: GenerativeModel;
+  private generativeModelPreview: GenerativeModelPreview;
+  constructor() {
+    if (!project) {
+      throw new Error("Missing required environment variables: GOOGLE_PROJECT_ID");
+    }
+    this.vertexAI = new VertexAI({
+      project: project,
+      location: location,
+    });
+    // Instantiate Gemini models
+    this.generativeModel = this.vertexAI.getGenerativeModel({
+      model: textModel,
+      // The following parameters are optional
+      // They can also be passed to individual content generation requests
+      safetySettings: [{ category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE }],
+      generationConfig: { maxOutputTokens: 256 },
+      systemInstruction: {
+        role: 'system',
+        parts: [{ "text": `For example, you are a helpful customer service agent.` }]
+      },
+    });
 
-        this.generativeVisionModel = this.vertexAI.getGenerativeModel({
-            model: visionModel,
-        });
+    this.generativeVisionModel = this.vertexAI.getGenerativeModel({
+      model: visionModel,
+    });
 
-        this.generativeModelPreview = this.vertexAI.preview.getGenerativeModel({
-            model: textModel,
-        });
+    this.generativeModelPreview = this.vertexAI.preview.getGenerativeModel({
+      model: textModel,
+    });
+  }
+
+  async streamGenerateContent() {
+    try {
+      const request = {
+        contents: [{ role: 'user', parts: [{ text: 'How are you doing today?' }] }],
+      };
+      const streamingResult = await this.generativeModel.generateContentStream(request);
+      for await (const item of streamingResult.stream) {
+        console.log('stream chunk: ', JSON.stringify(item));
+      }
+      const aggregatedResponse = await streamingResult.response;
+      console.log('aggregated response: ', JSON.stringify(aggregatedResponse));
+    } catch (e) {
+      throw e;
+    }
+  };
+
+  async generateContent() {
+    const request = {
+      contents: [{ role: 'user', parts: [{ text: 'How are you doing today?' }] }],
+    };
+    const result = await this.generativeModel.generateContent(request);
+    const response = result.response;
+    console.log('Response: ', JSON.stringify(response));
+  };
+
+  async generateContentWithImage(prompt: string, encodedImage: string) {
+    const request: GenerateContentRequest = {
+      contents: [{
+        role: 'user',
+        parts: [
+          { text: prompt },
+          { inlineData: { mimeType: 'image/jpeg', data: encodedImage } }
+        ],
+      }],
+    };
+    console.log("Send request to Gemini");
+    try {
+      // 콘텐츠 생성 요청 및 응답 대기
+      const result = await this.generativeModel.generateContent(request);
+      const response = result.response;
+
+      // 결과 출력
+      console.log('---------------------------------');
+      console.log('response of gemini:');
+      console.log(response.candidates?.[0]!.content?.parts?.[0]!.text);
+      console.log('---------------------------------');
+
+    } catch (error) {
+      console.error('API 요청 중 오류가 발생했습니다:', error);
     }
 
-    async streamGenerateContent() {
-        try{
-        const request = {
-            contents: [{role: 'user', parts: [{text: 'How are you doing today?'}]}],
-        };
-        const streamingResult = await this.generativeModel.generateContentStream(request);
-        for await (const item of streamingResult.stream) {
-            console.log('stream chunk: ', JSON.stringify(item));
-        }
-        const aggregatedResponse = await streamingResult.response;
-        console.log('aggregated response: ', JSON.stringify(aggregatedResponse));
-        } catch(e){
-            throw e;
-        }
-    };
-
-    async generateContent() {
-        const request = {
-            contents: [{role: 'user', parts: [{text: 'How are you doing today?'}]}],
-        };
-        const result = await this.generativeModel.generateContent(request);
-        const response = result.response;
-        console.log('Response: ', JSON.stringify(response));
-    };
-
-    async generateContentWithImage(prompt:string, encodedImage: string) {
-        const request: GenerateContentRequest = {
-            contents: [{
-                role: 'user',
-                parts: [
-                    { text: prompt },
-                    { inlineData: { mimeType: 'image/jpeg', data: encodedImage }}
-                ],
-            }],
-        };
-        console.log("Send request to Gemini");
-        try {
-            // 콘텐츠 생성 요청 및 응답 대기
-            const result = await this.generativeModel.generateContent(request);
-            const response = result.response;
-            
-            // 결과 출력
-            console.log('---------------------------------');
-            console.log('response of gemini:');
-            console.log(response.candidates?.[0]!.content?.parts?.[0]!.text);
-            console.log('---------------------------------');
-
-        } catch (error) {
-            console.error('API 요청 중 오류가 발생했습니다:', error);
-        }
-        
-    }
+  }
 }

@@ -11,7 +11,7 @@ export default class Service {
     }
 
     try{
-      const result = await this.repository.googleApi.predict(encodedUserImage, encodedProductImage);
+      const result = await this.repository.vtoApi.predict(encodedUserImage, encodedProductImage);
 
       const outputImage = result.predictions[0]?.bytesBase64Encoded;
       if (outputImage) {
