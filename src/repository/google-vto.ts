@@ -44,7 +44,7 @@ export default class GoogleApi {
       const response = await axios.post<ApiResponse>(API_ENDPOINT, requestBody, {
         headers: {
           'Authorization': `Bearer ${ACCESS_TOKEN}`,
-          'Content-Type': 'application/json',
+          'Contxent-Type': 'application/json',
         },
       });
 

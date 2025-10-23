@@ -12,25 +12,28 @@ body {
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  text-align: center;
 }
 
 h1 {
   color: #007bff;
   margin-bottom: 1.5rem;
+  text-align: center;
 }
 
 .main-content {
   display: flex;
-  justify-content: space-around;
+  flex-direction: row; /* Input on left, results on right */
+  justify-content: space-between;
   align-items: flex-start;
-  gap: 2rem;
+  gap: 3rem;
 }
 
 .input-section {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+  max-width: 520px;
 }
 
 .upload-section {
@@ -38,12 +41,14 @@ h1 {
   justify-content: space-around;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  width: 100%;
 }
 
 .upload-area {
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex: 1;
 }
 
 .upload-area label {
@@ -58,8 +63,9 @@ h1 {
 .image-preview-container {
   border: 2px dashed #ddd;
   border-radius: 8px;
-  width: 250px; /* Adjusted width */
-  height: 250px; /* Adjusted height */
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
   position: relative;
   display: flex;
   justify-content: center;
@@ -71,14 +77,28 @@ h1 {
 .image-preview {
   max-width: 100%;
   max-height: 100%;
-  display: none; /* Initially hidden */
+  display: none;
 }
 
 .preview-text {
   color: #aaa;
 }
 
-#send-image-btn {
+.api-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  gap: 1.5rem;
+}
+
+.api-selector label {
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+#generate-btn {
   background-color: #007bff;
   color: white;
   border: none;
@@ -88,21 +108,42 @@ h1 {
   cursor: pointer;
   transition: background-color 0.3s;
   width: 100%;
+  margin-top: 1rem;
 }
 
-#send-image-btn:hover {
+#generate-btn:hover {
   background-color: #0056b3;
 }
 
-#result-section {
-  margin-top: 0;
+.results-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column; /* Stack results vertically */
+  align-items: center;
+  gap: 2rem;
+  max-width: 540px;
 }
 
-#result-section h2 {
+.result-section {
+  width: 100%;
+  text-align: center;
+}
+
+.result-section h2 {
   color: #28a745;
 }
 
-#result-container {
-  width: 520px; /* Adjusted to be larger */
-  height: 520px;
+.result-section .image-preview-container {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+}
+
+.result-section p {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 0.5rem;
+  height: 1.2em;
 }

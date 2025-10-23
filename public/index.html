@@ -31,14 +31,30 @@
             </div>
           </div>
         </div>
-        <button id="send-image-btn">Perform Try-On</button>
+        <div class="api-selector">
+          <label><input type="checkbox" id="vto-checkbox" checked> Google VTO</label>
+          <label><input type="checkbox" id="gemini-checkbox" checked> Gemini Flash Image</label>
+        </div>
+        <button id="generate-btn">Perform Try-On</button>
       </div>
       
-      <div id="result-section">
-        <h2>Result</h2>
-        <div id="result-container" class="image-preview-container">
-          <img id="result-image" class="image-preview" src="#" alt="Result image">
-          <span class="preview-text">Result will be shown here</span>
+      <div class="results-wrapper">
+        <div id="result-vto-section" class="result-section" style="display: none;">
+          <h2>Result (Google VTO)</h2>
+          <p id="result-model-vto"></p>
+          <div id="result-container-vto" class="image-preview-container">
+            <img id="result-image-vto" class="image-preview" src="#" alt="Result from VTO">
+            <span class="preview-text">Result will be shown here</span>
+          </div>
+        </div>
+
+        <div id="result-gemini-section" class="result-section" style="display: none;">
+          <h2>Result (Gemini Flash)</h2>
+          <p id="result-model-gemini"></p>
+          <div id="result-container-gemini" class="image-preview-container">
+            <img id="result-image-gemini" class="image-preview" src="#" alt="Result from Gemini">
+            <span class="preview-text">Result will be shown here</span>
+          </div>
         </div>
       </div>
     </div>

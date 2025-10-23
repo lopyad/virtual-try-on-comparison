@@ -6,16 +6,35 @@ import { ApiError } from '../types/errors/error';
 export default class Controller {
   constructor(private readonly service: Service){}
 
-  async perfromTryOn(req: Request, res: Response) {
+  async perfromTryOnGoogleVto(req: Request, res: Response) {
     const {encodedPersonImage, encodedProductImage} = req.body;
     if(!encodedPersonImage || !encodedProductImage){
       return res.status(400).json({ success: false, message: 'invalid body' });
     }
 
     try{
-      const result = await this.service.performTryOnByGemini(encodedPersonImage, encodedProductImage);
+      const result = await this.service.performTryOn(encodedPersonImage, encodedProductImage);
+      console.log("Seding Virtual Try-on result to client.");
+      return res.status(200).json({success: true, encodedImage: result} as encodedImageResponse);
+    } 
+    catch(e){
+      if(e instanceof ApiError){
+        console.log(`[controller] ${e.message}`);
+        return res.status(400).json({ success: false, message: `An error occured: ${e.message}` });
+      }
+      
+      return res.status(500).json({ success: false, message: `An unknown error occured` });
+   }
+  }
 
-      // const result = await this.service.performTryOn(encodedPersonImage, encodedProductImage);
+  async perfromTryOnByGeminiFlashImage(req: Request, res: Response) {
+    const {encodedPersonImage, encodedProductImage} = req.body;
+    if(!encodedPersonImage || !encodedProductImage){
+      return res.status(400).json({ success: false, message: 'invalid body' });
+    }
+
+    try{
+      const result = await this.service.performTryOnByGeminiFlashImage(encodedPersonImage, encodedProductImage);
       console.log("Seding Virtual Try-on result to client.");
       return res.status(200).json({success: true, encodedImage: result} as encodedImageResponse);
     } 

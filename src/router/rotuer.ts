@@ -19,7 +19,7 @@ export function startServer(controller: Controller) {
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-  app.use('/encodedImage', createRouter(controller));
+  app.use('/api', createRouter(controller));
 
   const httpServer = app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
@@ -29,7 +29,8 @@ export function startServer(controller: Controller) {
 function createRouter(controller: Controller): Router{
     const router = Router();
 
-    router.post("/", controller.perfromTryOn.bind(controller));
+    router.post("/google-vto", controller.perfromTryOnGoogleVto.bind(controller));
+    router.post("/gemini-flash-image", controller.perfromTryOnByGeminiFlashImage.bind(controller));
 
     return router;
 }
