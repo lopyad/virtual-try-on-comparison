@@ -32,7 +32,7 @@ export default class Service {
     }
   }
 
-  async readImage(encodedImage: string): Promise<void> {
-    await this.repository.vertexApi.generateContentWithImage("사진을 설명해줘", encodedImage);
+  async performTryOnByGemini(encodedUserImage: string, encodedProductImage: string): Promise<string> {
+    return await this.repository.vertexApi.predict("두 사진을 합성해서 Virtual-try-on을 구현해줘. 이미지를 생성해서 응답을 보내줘", encodedUserImage, encodedProductImage);
   }
 }

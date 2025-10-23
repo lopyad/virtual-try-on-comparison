@@ -10,14 +10,11 @@ import {
 
 const project = process.env.GOOGLE_PROJECT_ID;
 const location = 'us-central1';
-const textModel = 'gemini-2.5-flash';
-const visionModel = 'gemini-2.5-flash';
+const model = 'gemini-2.5-flash-image';
 
-export default class VertextAiApi {
+export default class GeminiApi {
   private vertexAI: VertexAI;
   private generativeModel: GenerativeModel;
-  private generativeVisionModel: GenerativeModel;
-  private generativeModelPreview: GenerativeModelPreview;
   constructor() {
     if (!project) {
       throw new Error("Missing required environment variables: GOOGLE_PROJECT_ID");
@@ -28,24 +25,42 @@ export default class VertextAiApi {
     });
     // Instantiate Gemini models
     this.generativeModel = this.vertexAI.getGenerativeModel({
-      model: textModel,
+      model: model,
       // The following parameters are optional
       // They can also be passed to individual content generation requests
-      safetySettings: [{ category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE }],
-      generationConfig: { maxOutputTokens: 256 },
-      systemInstruction: {
-        role: 'system',
-        parts: [{ "text": `For example, you are a helpful customer service agent.` }]
-      },
+      // safetySettings: [{ category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE }],
+      // generationConfig: { maxOutputTokens: 256 },
+      // systemInstruction: {
+      //   role: 'system',
+      //   parts: [{ "text": `For example, you are a helpful customer service agent.` }]
+      // },
     });
+  }
 
-    this.generativeVisionModel = this.vertexAI.getGenerativeModel({
-      model: visionModel,
-    });
+  async predict(prompt: string, encodedUserImage: string, encodedProductImage: string): Promise<string> {
+    try{
+      const contents = [
+        {
+          role: "user",
+          parts: [
+            { inlineData: { mimeType: "image/png", data: encodedUserImage } },
+            { inlineData: { mimeType: "image/png", data: encodedProductImage } },
+            { text: prompt },
+          ],
+        },
+      ];
 
-    this.generativeModelPreview = this.vertexAI.preview.getGenerativeModel({
-      model: textModel,
-    });
+      const result = await this.generativeModel.generateContent({ contents });
+      // const contentResponse = await streamingResult.response;
+      // console.log(contentResponse.candidates![0]?.content.parts[0]!.text);
+      return result.response.candidates![0]!.content.parts[0]!.inlineData!.data;
+      // console.log(result.response.candidates![0]?.content.parts);
+      // return "1111";     
+    } catch(e){
+      console.log(e);
+      throw e;
+    }
+
   }
 
   async streamGenerateContent() {

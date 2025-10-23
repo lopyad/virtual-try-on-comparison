@@ -1,5 +1,5 @@
 import VtoApi from "./google-vto";
-import VertextAiApi from "./imagen-api";
+import VertextAiApi from "./gemini-flash";
 
 export default class Repository {
   vtoApi: VtoApi

@@ -13,9 +13,9 @@ export default class Controller {
     }
 
     try{
-      await this.service.readImage(encodedPersonImage);
+      const result = await this.service.performTryOnByGemini(encodedPersonImage, encodedProductImage);
 
-      const result = await this.service.performTryOn(encodedPersonImage, encodedProductImage);
+      // const result = await this.service.performTryOn(encodedPersonImage, encodedProductImage);
       console.log("Seding Virtual Try-on result to client.");
       return res.status(200).json({success: true, encodedImage: result} as encodedImageResponse);
     } 
