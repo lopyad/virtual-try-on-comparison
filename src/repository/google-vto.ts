@@ -1,19 +1,26 @@
 import axios from 'axios';
+import { GoogleAuth } from 'google-auth-library';
 import { ApiResponse, VirtualTryOnInstance, VirtualTryOnParameters } from '../types/google-api.types';
 import { ApiError } from '../types/errors/error';
 
-const PROJECT_ID = process.env.GOOGLE_PROJECT_ID;
-const ACCESS_TOKEN = process.env.GOOGLE_ACCESS_TOKEN;
+const PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT_ID;
 const LOCATION = 'us-central1';
-if (!PROJECT_ID || !ACCESS_TOKEN) {
-  throw new Error('Missing required environment variables: GOOGLE_PROJECT_ID and GOOGLE_ACCESS_TOKEN');
+
+if (!PROJECT_ID) {
+  throw new Error('Missing required environment variable: GOOGLE_CLOUD_PROJECT_ID');
 }
 
 const API_ENDPOINT = `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/${LOCATION}/publishers/google/models/virtual-try-on-preview-08-04:predict`;
 
+const auth = new GoogleAuth({
+  scopes: 'https://www.googleapis.com/auth/cloud-platform'
+});
+
 export default class GoogleApi {
   async predict(encodedUserImage: string, encodedProductImage: string): Promise<ApiResponse> {
     console.log('Sending prediction request to Virtual Try-on API...');
+
+    const accessToken = await auth.getAccessToken();
 
     const instances: VirtualTryOnInstance[] = [
       {
@@ -43,8 +50,8 @@ export default class GoogleApi {
     try {
       const response = await axios.post<ApiResponse>(API_ENDPOINT, requestBody, {
         headers: {
-          'Authorization': `Bearer ${ACCESS_TOKEN}`,
-          'Contxent-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
         },
       });
 

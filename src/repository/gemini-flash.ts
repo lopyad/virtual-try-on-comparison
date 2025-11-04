@@ -8,7 +8,7 @@ import {
   VertexAI
 } from '@google-cloud/vertexai';
 
-const project = process.env.GOOGLE_PROJECT_ID;
+const project = process.env.GOOGLE_CLOUD_PROJECT_ID;
 const location = 'us-central1';
 const model = 'gemini-2.5-flash-image';
 
