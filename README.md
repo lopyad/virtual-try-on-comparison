@@ -1,83 +1,36 @@
-# Virtual Try-On API Comparison
+# Virtual Try-On APIs
 
-This project is a web application that provides a user interface to compare the results of two different AI models for virtual try-on: **Google VTO** and **Gemini Flash Image**.
-
-Users can upload an image of a person and an image of a clothing item. The application then allows them to send requests to either or both of the AI model backends and displays the generated try-on images.
-
-## Key Features
-
-- **Image Upload:** Upload separate images for the person and the product.
-- **Live Preview:** Shows a preview of the uploaded images.
-- **Flexible API Selection:** Choose to use Google VTO, Gemini Flash Image, or both simultaneously using checkboxes.
-- **Parallel Requests:** When both models are selected, API calls are made in parallel to reduce waiting time.
-- **Side-by-Side & Vertical Comparison:** The UI is structured to show input selections on the left and generated results vertically on the right for easy comparison.
-
-## Tech Stack
-
-- **Frontend:** HTML, CSS, vanilla JavaScript
-- **Backend:** Node.js, Express, TypeScript
+This project implements Virtual Try-On using VertexAI services, allowing requests to be sent to various models such as `gemini-flash-image` and `google-virtual-try-on-preview` for comparison.
 
 ## Getting Started
 
-Follow these instructions to get the project up and running on your local machine.
+Before starting the project, you need a Google Cloud project.
 
-### Prerequisites
+1.  **Clone the repository:**
+    ```bash
+    git clone <repository-url>
+    cd virtual-try-on
+    ```
 
-- [Node.js](https://nodejs.org/) (v18 or later recommended)
-- A configured backend environment to handle the API requests.
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-### Installation
+3.  **Google Cloud Setup:**
+    *   Ensure you have a Google Cloud project.
+    *   Log in to gcloud and obtain an access token. You might need to run `gcloud auth application-default login` and `gcloud auth print-access-token` to get the token.
 
-1. **Clone the repository**
-   ```sh
-   git clone https://github.com/lopyad/google-virtual-try-on
-   cd google-virtual-try-on
-   ```
+4.  **Environment Variables:**
+    *   Create a `.env` file in the project root.
+    *   Add your Google Cloud project ID and access token to the `.env` file:
+        ```
+        GOOGLE_CLOUD_PROJECT_ID=your-project-id
+        GOOGLE_ACCESS_TOKEN=your-access-token
+        ```
 
-2. **Install dependencies**
-   ```sh
-   npm install
-   ```
-
-3. **Set up environment variables**
-
-   If the backend requires environment variables (e.g., for API keys or project IDs), create a `.env` file in the root of the project.
-
-   ```
-   # .env (Example)
-   GOOGLE_PROJECT_ID=your-gcp-project-id
-   GOOGLE_ACCESS_TOKEN=your-google-access-token
-   ```
-
-## Running the Project
-
-To start the development server, run:
-
-```sh
-npm start
-```
-
-This will launch the server. You can then open `public/index.html` in your browser or navigate to the appropriate URL (e.g., `http://localhost:3000`) to use the application.
-
-## API Endpoints
-
-The frontend communicates with the following backend endpoints:
-
-- `POST /api/google-vto`: Sends the person and product images to the Google VTO service.
-- `POST /api/gemini-flash-image`: Sends the person and product images to the Gemini Flash Image service.
-
-**Request Body (for both endpoints):**
-```json
-{
-  "encodedPersonImage": "<base64_string>",
-  "encodedProductImage": "<base64_string>"
-}
-```
-
-**Success Response (for both endpoints):**
-```json
-{
-  "success": true,
-  "encodedImage": "<base64_string>"
-}
-```
+5.  **Run the application:**
+    ```bash
+    npm start
+    ```
+    You can then access a simple web interface in your browser.
