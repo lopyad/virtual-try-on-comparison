@@ -7,25 +7,25 @@ import {
   HarmCategory,
   VertexAI
 } from '@google-cloud/vertexai';
+import { config } from '../config/config';
 
-const project = process.env.GOOGLE_CLOUD_PROJECT_ID;
-const location = 'us-central1';
-const model = 'gemini-2.5-flash-image';
+const { projectId, location } = config.googleCloud;
+const { geminiFlashImage } = config.models;
 
 export default class GeminiApi {
   private vertexAI: VertexAI;
   private generativeModel: GenerativeModel;
   constructor() {
-    if (!project) {
+    if (!projectId) {
       throw new Error("Missing required environment variables: GOOGLE_PROJECT_ID");
     }
     this.vertexAI = new VertexAI({
-      project: project,
+      project: projectId,
       location: location,
     });
     // Instantiate Gemini models
     this.generativeModel = this.vertexAI.getGenerativeModel({
-      model: model,
+      model: geminiFlashImage,
       // The following parameters are optional
       // They can also be passed to individual content generation requests
       // safetySettings: [{ category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE }],

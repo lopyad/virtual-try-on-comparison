@@ -2,15 +2,16 @@ import axios from 'axios';
 import { GoogleAuth } from 'google-auth-library';
 import { ApiResponse, VirtualTryOnInstance, VirtualTryOnParameters } from '../types/google-api.types';
 import { ApiError } from '../types/errors/error';
+import { config } from '../config/config';
 
-const PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT_ID;
-const LOCATION = 'us-central1';
+const { projectId, location } = config.googleCloud;
+const { virtualTryOn } = config.models;
 
-if (!PROJECT_ID) {
+if (!projectId) {
   throw new Error('Missing required environment variable: GOOGLE_CLOUD_PROJECT_ID');
 }
 
-const API_ENDPOINT = `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/${LOCATION}/publishers/google/models/virtual-try-on-preview-08-04:predict`;
+const API_ENDPOINT = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/${virtualTryOn}:predict`;
 
 const auth = new GoogleAuth({
   scopes: 'https://www.googleapis.com/auth/cloud-platform'
